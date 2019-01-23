@@ -18,11 +18,13 @@ for Cityscapes dataset, make directory "data\Cityscapes" and put "gtFine", "test
 
 run:
 
+```
 **data/CityScapes_utils.py**     for Cityscapes dataset;
+```
 
+```
 **python data/CamVid_utils.py** for CamVid dataset.
-
-
+```
 
 ### Train the network
 
