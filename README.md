@@ -2,8 +2,6 @@
 
 ## Training
 
----
-
 ### Prepare data
 
 - default dataset is 
