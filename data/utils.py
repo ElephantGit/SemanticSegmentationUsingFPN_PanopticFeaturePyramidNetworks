@@ -27,6 +27,9 @@ def decode_segmap(label_mask, dataset, plot=False):
     elif dataset == 'cityscapes':
         n_classes = 19
         label_colours = get_cityscapes_labels()
+    elif dataset == 'camvid':
+        n_classes = 32
+        label_colours = get_camvid_labels()
     else:
         raise NotImplementedError
 
@@ -99,3 +102,19 @@ def get_pascal_labels():
                        [64, 0, 128], [192, 0, 128], [64, 128, 128], [192, 128, 128],
                        [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0],
                        [0, 64, 128]])
+
+
+def get_camvid_labels():
+    """Load the mapping that associates camvid classes with label colors
+    Returns:
+        np.ndarray with dimensions (32, 3)
+    """
+    return np.asarray([
+        [64, 128, 64],    [192, 0, 128],    [0, 128, 192],    [0, 128, 64],
+        [128, 0, 0],      [64, 0, 128],     [64, 0, 192],     [192, 128, 64],   
+        [192, 192, 128],  [64, 64, 128],    [128, 0, 192],    [192, 0, 64],     
+        [128, 128, 64],   [192, 0, 192],    [128, 64, 64],    [64, 192, 128],   
+        [64, 64, 0],      [128, 64, 128],   [128, 128, 192],  [0, 0, 192],      
+        [192, 128, 128],  [128, 128, 128],  [64, 128, 192],   [0, 0, 64],       
+        [0, 64, 64],      [192, 64, 128],   [128, 128, 0],    [192, 128, 192],  
+        [64, 0, 64],      [192, 192, 0],    [0, 0, 0],        [64, 192, 0]])
