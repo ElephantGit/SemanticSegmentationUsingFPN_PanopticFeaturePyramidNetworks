@@ -10,6 +10,7 @@ import pprint
 import pdb
 import time
 import logging
+import glob
 from tqdm import tqdm
 
 import torch
@@ -50,7 +51,7 @@ def parse_args():
 					    default=2000, type=int)
     parser.add_argument('--save_dir', dest='save_dir', 
 					    help='directory to save models', 
-					    default="D:\\disk\\midterm\\experiment\\code\\semantic\\fpn\\models",
+					    default="D:\\disk\\midterm\\experiment\\code\\semantic\\fpn\\fpn\\run",
 					    nargs=argparse.REMAINDER)
     parser.add_argument('--num_workers', dest='num_workers',
 					    help='number of worker to load data',
@@ -209,17 +210,20 @@ class Trainer(object):
             self.model = self.model.cuda()
 
         # Resuming checkpoint
-        self.bast_pred = 0.0
+        self.best_pred = 0.0
         if args.resume:
-            output_dir = args.save_dir + "/" + args.net + "/" + args.dataset
-            load_name = os.path.join(output_dir, 
-                                 'model_epoch_{}.pth'.format(args.checkepoch))
+            output_dir = os.path.join(args.save_dir, args.dataset, args.checkname)
+            runs = sorted(glob.glob(os.path.join(output_dir, 'experiment_*')))
+            run_id = int(runs[-1].split('_')[-1]) - 1 if runs else 0
+            experiment_dir = os.path.join(output_dir, 'experiment_{}'.format(str(run_id)))
+            load_name = os.path.join(experiment_dir, 
+                                 'checkpoint.pth.tar')
             if not os.path.isfile(load_name):
                 raise RuntimeError("=> no checkpoint found at '{}'".format(load_name))
             checkpoint = torch.load(load_name)
             args.checkepoch = checkpoint['epoch']
             if args.cuda:
-                self.model.module.load_state_dict(chedkpoint['state_dict'])
+                self.model.load_state_dict(checkpoint['state_dict'])
             else:
                 self.model.load_state_dict(checkpoint['state_dict'])
             self.optimizer.load_state_dict(checkpoint['optimizer'])
@@ -281,10 +285,10 @@ class Trainer(object):
                 image, target = image.cuda(), target.cuda()
             with torch.no_grad():
                 output = self.model(image)
-            loss = self.critersion(output, target)
+            loss = self.criterion(output, target)
             test_loss += loss.item()
-            tbar.set_description('Test loss: %.3f ' % (test_loss / (iter + 1)))
-            pred = output.data.cup().numpy()
+            # tbar.set_description('Test loss: %.3f ' % (test_loss / (iter + 1)))
+            pred = output.data.cpu().numpy()
             target = target.cpu().numpy()
             pred = np.argmax(pred, axis=1)
             # Add batch sample into evaluator
@@ -294,15 +298,15 @@ class Trainer(object):
             Acc = self.evaluator.Pixel_Accuracy()
             Acc_class = self.evaluator.Pixel_Accuracy_Class()
             mIoU = self.evaluator.Mean_Intersection_over_Union()
-            FWIoU = self.evaluator.Frequency_Weight_Intersection_over_Union()
+            FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union()
             self.witer.add_scalar('val/total_loss_epoch', test_loss, epoch)
-            self.witer.add_scalar('val/mIoU', mIou, epoch)
+            self.witer.add_scalar('val/mIoU', mIoU, epoch)
             self.witer.add_scalar('val/Acc', Acc, epoch)
             self.witer.add_scalar('val/Acc_class', Acc_class, epoch)
             self.witer.add_scalar('val/FWIoU', FWIoU, epoch)
             print('Validation:')
             print('[Epoch: %d, numImages: %5d]' % (epoch, iter * self.args.batch_size + image.shape[0]))
-            print("Acc:{}, Acc_class:{}, mIoU:{}, fwIoU:{}".format(Acc, Acc_class, mIoU, FWIoU))
+            print("Acc:{:.5f}, Acc_class:{:.5f}, mIoU:{:.5f}, fwIoU:{:.5f}".format(Acc, Acc_class, mIoU, FWIoU))
             print('Loss: %.3f' % test_loss)
 
             new_pred = mIoU
@@ -311,7 +315,7 @@ class Trainer(object):
                 self.best_pred = new_pred
                 self.saver.save_checkpoint({
                     'epoch': epoch + 1,
-                    'state_dict': self.model.module.state_dict(),
+                    'state_dict': self.model.state_dict(),
                     'optimizer': self.optimizer.state_dict(),
                     'best_pred': self.best_pred,
                 }, is_best)
