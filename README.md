@@ -6,7 +6,7 @@ This repository is a semantic segmentation part implement of [Kaiming He, Panopt
 
 ### Prepare data
 
-- default dataset is
+- default dataset is CamVid
 
 download pytorch 1.0.0 from [pytorch.org](https://pytorch.org)
 
