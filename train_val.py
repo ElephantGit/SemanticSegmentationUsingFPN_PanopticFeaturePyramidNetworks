@@ -23,7 +23,8 @@ import torchvision.transforms as transforms
 from torch.utils.data.sampler import Sampler
 
 from data.CamVid_loader import CamVidDataset
-from data.Cityscapes_loader import CityScapesDataset
+from data import make_data_loader
+from mypath import Path
 
 from utils.metrics import Evaluator
 from utils.saver import Saver
@@ -184,20 +185,7 @@ class Trainer(object):
                                                      num_workers=args.num_workers)
             self.num_class = 32
         elif args.dataset == 'Cityscapes':
-            train_file = os.path.join(os.getcwd(), "data\\Cityscapes", "train.csv")
-            val_file = os.path.join(os.getcwd(), "data\\Cityscapes", "val.csv")
-            print('=>loading dataset')
-            train_data = CityScapesDataset(csv_file=train_file, phase='train')
-            self.train_loader = torch.utils.data.DataLoader(train_data,
-                                                            batch_size=args.batch_size,
-                                                            shuffle=True,
-                                                            num_workers=args.num_workers)
-            val_data = CityScapesDataset(csv_file=val_file, phase='val', flip_rate=0)
-            self.val_loader = torch.utils.data.DataLoader(val_data,
-                                                          batch_size=args.batch_size,
-                                                          shuffle=True,
-                                                          num_workers=args.num_workers)
-            self.num_class = 19
+            self.train_loader, self.val_loader, self.test_loader, self.num_class = make_data_loader(args, **kwargs)
 
         # Define network
         if args.net == 'resnet101':
