@@ -1,4 +1,6 @@
 # FPN-for-Semantic-Segmentation
+This repository is a semantic segmentation part implement of [Kaiming He, Panoptic Feature Pyramid Networks
+](https://arxiv.org/abs/1901.02446).
 
 ## Training
 
