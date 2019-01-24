@@ -4,7 +4,7 @@
 
 ### Prepare data
 
-- default dataset is 
+- default dataset is
 
 download pytorch 1.0.0 from [pytorch.org](https://pytorch.org)
 
@@ -38,3 +38,6 @@ train with Cityscapes dataset
 python trainval.py --dataset=Cityscapes
 ```
 
+## Acknowledgment
+[FCN-pytorch](https://github.com/pochih/FCN-pytorch)
+[pytorch-deeplab-xception](https://github.com/jfzhang95/pytorch-deeplab-xception)
