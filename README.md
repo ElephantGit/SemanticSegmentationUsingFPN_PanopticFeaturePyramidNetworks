@@ -10,7 +10,7 @@ This repository is a semantic segmentation part implement of [Kaiming He, Panopt
 
 download pytorch 1.0.0 from [pytorch.org](https://pytorch.org)
 
-download [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/) dataset or[Cityscapes](https://www.cityscapes-dataset.com/)dataset
+download [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/) dataset or [Cityscapes](https://www.cityscapes-dataset.com/) dataset
 
 for CamVid dataset, make directory "data\CamVid" and put "701_StillsRaw_full", "LabeledApproved_full" in "CamVid".
 
