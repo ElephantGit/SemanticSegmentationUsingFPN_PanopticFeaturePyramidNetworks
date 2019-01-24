@@ -17,13 +17,13 @@ for CamVid dataset, make directory "data\CamVid" and put "701_StillsRaw_full", "
 for Cityscapes dataset, make directory "data\Cityscapes" and put "gtFine", "test", "train", "val" in "data\Cityscapes"
 
 run:
-
+for Cityscapes dataset;
 ```
-data/CityScapes_utils.py    for Cityscapes dataset;
+python data/CityScapes_utils.py    
 ```
-
+for CamVid dataset.
 ```
-python data/CamVid_utils.py for CamVid dataset.
+python data/CamVid_utils.py     
 ```
 
 ### Train the network
