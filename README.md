@@ -40,6 +40,9 @@ train with Cityscapes dataset
 python trainval.py --dataset=Cityscapes
 ```
 
+## Test
+
+
 ## Acknowledgment
 [FCN-pytorch](https://github.com/pochih/FCN-pytorch)
 

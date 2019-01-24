@@ -18,7 +18,7 @@ import torch
 
 from data.CamVid_loader import CamVidDataset
 from data.utils import decode_segmap, decode_seg_map_sequence
-import utils.metrics
+from utils.metrics import Evaluator
 
 from model.FPN import FPN
 from model.resnet import resnet
@@ -125,12 +125,15 @@ def main():
         blocks = [2, 4, 23, 3]
         model = FPN(blocks, num_class, back_bone=args.net)
 
+    if args.checkname is None:
+        args.checkname = 'fpn-' + str(args.net)
+
     evaluator = Evaluator(num_class)
 
     # Trained model path and name
     output_dir = os.path.join(args.save_dir, args.dataset, args.checkname)
     runs = sorted(glob.glob(os.path.join(output_dir, 'experiment_*')))
-    run_id = int(runs[-1].split('_')[-1]) - 1 if runs else 0
+    run_id = int(runs[-1].split('_')[-1]) if runs else 0
     experiment_dir = os.path.join(output_dir, 'experiment_{}'.format(str(run_id)))
     load_name = os.path.join(experiment_dir, 'checkpoint.pth.tar')
 
@@ -140,9 +143,9 @@ def main():
     checkpoint = torch.load(load_name)
     checkepoch = checkpoint['epoch']
     if args.cuda:
-        self.model.load_state_dict(checkpoint['state_dict'])
+        model.load_state_dict(checkpoint['state_dict'])
     else:
-        self.model.load_state_dict(checkpoint['state_dict'])
+        model.load_state_dict(checkpoint['state_dict'])
 
     # Load image and save in test_imgs
     test_imgs = []
@@ -152,8 +155,8 @@ def main():
         csv_file = os.path.join(root_dir, "val.csv")
         csv_data = pd.read_csv(csv_file)
         for i in range(len(csv_data)):
-            test_imgs.append(csv_data.ix[i, 0])
-            test_label.append(csv_data.ix[i, 1])
+            test_imgs.append(csv_data.iloc[i, 0])
+            test_label.append(csv_data.iloc[i, 1])
 
     elif args.dataset == "Cityscapes":
         root_dir = "D:\\disk\\midterm\\experiment\\code\\semantic\\fpn\\fpn\\data\\Cityscapes"
@@ -172,16 +175,27 @@ def main():
     else:
         raise RuntimeError("dataset {} not found.".format(args.dataset))
 
+    means     = np.array([103.939, 116.779, 123.68]) / 255. # mean of three channels in the order of BGR
+
     # test
     Acc = []
     Acc_class = []
     mIoU = []
     FWIoU = []
-    for i in range(len(test_imgs):
+    for i in range(len(test_imgs)):
         img_name = test_imgs[i]
-        lebel_name = test_label[i]
+        label_name = test_label[i]
+
+        # read rgb image
         img = scipy.misc.imread(img_name, mode='RGB')
+        img = img[:, :, ::-1] # switch to BGR
+        img = np.transpose(img, (2, 0, 1)) / 255.
+        img[0] -= means[0]
+        img[1] -= means[1]
+        img[2] -= means[2]
         img = torch.from_numpy(img.copy()).float()
+        
+        # read label image
         label = np.load(label_name)
         label = torch.from_numpy(label.copy()).long()
         img, label = img.cuda(), label.cuda()
