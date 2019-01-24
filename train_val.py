@@ -23,6 +23,7 @@ import torchvision.transforms as transforms
 from torch.utils.data.sampler import Sampler
 
 from data.CamVid_loader import CamVidDataset
+from data.Cityscapes_loader import CityScapesDataset
 
 from utils.metrics import Evaluator
 from utils.saver import Saver
@@ -37,7 +38,7 @@ def parse_args():
     Parse input arguments
     """
     parser = argparse.ArgumentParser(description='Train a FPN Semantic Segmentation network')
-    parser.add_argument('--dataset', dest='dataset', 
+    parser.add_argument('--dataset', dest='dataset',
 					    help='training dataset',
 					    default='CamVid', type=str)
     parser.add_argument('--net', dest='net',
@@ -49,8 +50,8 @@ def parse_args():
     parser.add_argument('--epochs', dest='epochs',
 					    help='number of iterations to train',
 					    default=2000, type=int)
-    parser.add_argument('--save_dir', dest='save_dir', 
-					    help='directory to save models', 
+    parser.add_argument('--save_dir', dest='save_dir',
+					    help='directory to save models',
 					    default="D:\\disk\\midterm\\experiment\\code\\semantic\\fpn\\fpn\\run",
 					    nargs=argparse.REMAINDER)
     parser.add_argument('--num_workers', dest='num_workers',
@@ -108,11 +109,11 @@ def parse_args():
 					    default=True, type=bool)
 
     # configure validation
-    parser.add_argument('--no_val', dest='no_val', 
+    parser.add_argument('--no_val', dest='no_val',
                         help='not do validation',
                         default=False, type=bool)
-    parser.add_argument('--eval_interval', dest='eval_interval', 
-                        help='iterval to do evaluate', 
+    parser.add_argument('--eval_interval', dest='eval_interval',
+                        help='iterval to do evaluate',
                         default=2, type=int)
 
     parser.add_argument('--checkname', dest='checkname',
@@ -182,6 +183,21 @@ class Trainer(object):
                                                      shuffle=True,
                                                      num_workers=args.num_workers)
             self.num_class = 32
+        elif args.dataset == 'Cityscapes':
+            train_file = os.path.join(os.getcwd(), "data\\Cityscapes", "train.csv")
+            val_file = os.path.join(os.getcwd(), "data\\Cityscapes", "val.csv")
+            print('=>loading dataset')
+            train_data = CityScapesDataset(csv_file=train_file, phase='train')
+            self.train_loader = torch.utils.data.DataLoader(train_data,
+                                                            batch_size=args.batch_size,
+                                                            shuffle=True,
+                                                            num_workers=args.num_workers)
+            val_data = CityScapesDataset(csv_file=val_file, phase='val', flip_rate=0)
+            self.val_loader = torch.utils.data.DataLoader(val_data,
+                                                          batch_size=args.batch_size,
+                                                          shuffle=True,
+                                                          num_workers=args.num_workers)
+            self.num_class = 19
 
         # Define network
         if args.net == 'resnet101':
@@ -198,13 +214,13 @@ class Trainer(object):
 
         # Define Criterion
         self.criterion = nn.CrossEntropyLoss()
-    
+
         self.model = fpn
         self.optimizer = optimizer
 
         # Define Evaluator
         self.evaluator = Evaluator(self.num_class)
-        
+
         # Using cuda
         if args.cuda:
             self.model = self.model.cuda()
@@ -216,7 +232,7 @@ class Trainer(object):
             runs = sorted(glob.glob(os.path.join(output_dir, 'experiment_*')))
             run_id = int(runs[-1].split('_')[-1]) - 1 if runs else 0
             experiment_dir = os.path.join(output_dir, 'experiment_{}'.format(str(run_id)))
-            load_name = os.path.join(experiment_dir, 
+            load_name = os.path.join(experiment_dir,
                                  'checkpoint.pth.tar')
             if not os.path.isfile(load_name):
                 raise RuntimeError("=> no checkpoint found at '{}'".format(load_name))
