@@ -2,6 +2,12 @@
 This repository is a semantic segmentation part implement of [Kaiming He, Panoptic Feature Pyramid Networks
 ](https://arxiv.org/abs/1901.02446).
 
+## To do
+- [x] Semantic Segmentation Branch
+  - [x] Train on CamVid Dataset
+  - [ ] Train on Cityscapes Dataset
+  - [ ] Train on COCO Dataset
+
 ## Training
 
 ### Prepare data
