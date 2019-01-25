@@ -23,7 +23,7 @@ python data/CityScapes_utils.py
 
 train with CamVid dataset:
 
-change to you own CamVid dataset path in mypath.py, then run:
+change to your own CamVid dataset path in mypath.py, then run:
 
 ```
 python trainval.py --dataset=CamVid
