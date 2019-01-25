@@ -18,6 +18,7 @@ import torch
 
 from data.CamVid_loader import CamVidDataset
 from data.utils import decode_segmap, decode_seg_map_sequence
+from mypath import Path
 from utils.metrics import Evaluator
 
 from model.FPN import FPN
@@ -161,35 +162,16 @@ def main():
     test_imgs = []
     test_label = []
     if args.dataset == "CamVid":
-        root_dir = "D:\\disk\\midterm\\experiment\\code\\semantic\\fpn\\fpn\\data\\CamVid"
+        root_dir = Path.db_root_dir('CamVid')
         test_file = os.path.join(root_dir, "val.csv")
-        #csv_data = pd.read_csv(csv_file)
-        #for i in range(len(csv_data)):
-        #    test_imgs.append(csv_data.iloc[i, 0])
-        #    test_label.append(csv_data.iloc[i, 1])
         test_data = CamVidDataset(csv_file=test_file, phase='val')
         test_loader = torch.utils.data.DataLoader(test_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
 
     elif args.dataset == "Cityscapes":
-        #root_dir = "D:\\disk\\midterm\\experiment\\code\\semantic\\fpn\\fpn\\data\\Cityscapes"
-        #test_dir = os.path.join(root_dir, "test")
-        #for scene in os.listdir(test_dir):
-        #    dir = os.path.join(test_dir, scene)
-        #    for img in os.listdir(dir):
-        #        img_name = os.path.join(dir, img)
-        #        test_imgs.append(img_name)
-        #test_label_dir = os.paht.join(root_dir, "gtFine", "test")
-        #for scene in os.listdir(test_label_dir):
-        #    dir = os.path.join(test_label_dir, scene)
-        #    for label in os.listdir(dir):
-        #        label_name = os.path.join(dir, label)
-        #        test_label.append(label_name)
         kwargs = {'num_workers': args.num_workers, 'pin_memory': True}
         _, _, test_loader = make_data_loader(args, **kwargs)
     else:
         raise RuntimeError("dataset {} not found.".format(args.dataset))
-
-    means     = np.array([103.939, 116.779, 123.68]) / 255. # mean of three channels in the order of BGR
 
     # test
     Acc = []
@@ -214,14 +196,14 @@ def main():
         target = target.cpu().numpy()
         evaluator.add_batch(target, pred)
 
+        # show result
+        pred_rgb = decode_seg_map_sequence(pred, args.dataset, args.plot)
+        results.append(pred_rgb)
+
     Acc = evaluator.Pixel_Accuracy()
     Acc_class = evaluator.Pixel_Accuracy_Class()
     mIoU = evaluator.Mean_Intersection_over_Union()
     FWIoU = evaluator.Frequency_Weighted_Intersection_over_Union()
-
-    # show result
-    pred_rgb = decode_seg_map_sequence(pred, args.dataset, args.plot)
-    results.append(pred_rgb)
 
     print('Mean evaluate result on dataset {}'.format(args.dataset))
     print('Acc:{:.3f}\tAcc_class:{:.3f}\nmIoU:{:.3f}\tFWIoU:{:.3f}'.format(Acc, Acc_class, mIoU, FWIoU))
