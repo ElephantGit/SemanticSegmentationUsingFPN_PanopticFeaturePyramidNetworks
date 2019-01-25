@@ -29,7 +29,7 @@ from mypath import Path
 from utils.metrics import Evaluator
 from utils.saver import Saver
 from utils.summaries import TensorboardSummary
-# from utils.logger import Logger
+from utils.loss import SegmentationLosses
 
 from model.FPN import FPN
 from model.resnet import resnet
@@ -41,7 +41,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train a FPN Semantic Segmentation network')
     parser.add_argument('--dataset', dest='dataset',
 					    help='training dataset',
-					    default='CamVid', type=str)
+					    default='Cityscapes', type=str)
     parser.add_argument('--net', dest='net',
 					    help='resnet101, res152, etc',
 					    default='resnet101', type=str)
@@ -66,7 +66,7 @@ def parse_args():
     # batch size
     parser.add_argument('--bs', dest='batch_size',
 					    help='batch_size',
-					    default=3, type=int)
+					    default=4, type=int)
 
     # config optimization
     parser.add_argument('--o', dest='optimizer',
@@ -80,7 +80,7 @@ def parse_args():
                         default=1e-5, type=float)
     parser.add_argument('--lr_decay_step', dest='lr_decay_step',
 					    help='step to do learning rate decay, uint is epoch',
-					    default=500, type=int)
+					    default=50, type=int)
     parser.add_argument('--lr_decay_gamma', dest='lr_decay_gamma',
 					    help='learning rate decay ratio',
 					    default=0.1, type=float)
@@ -115,11 +115,16 @@ def parse_args():
                         default=False, type=bool)
     parser.add_argument('--eval_interval', dest='eval_interval',
                         help='iterval to do evaluate',
-                        default=2, type=int)
+                        default=1, type=int)
 
     parser.add_argument('--checkname', dest='checkname',
                         help='checkname',
                         default=None, type=str)
+
+    parser.add_argument('--base-size', type=int, default=512,
+                        help='base image size')
+    parser.add_argument('--crop-size', type=int, default=512,
+                        help='crop image size')
 
     args = parser.parse_args()
     return args
@@ -185,6 +190,7 @@ class Trainer(object):
                                                      num_workers=args.num_workers)
             self.num_class = 32
         elif args.dataset == 'Cityscapes':
+            kwargs = {'num_workers': args.num_workers, 'pin_memory': True}
             self.train_loader, self.val_loader, self.test_loader, self.num_class = make_data_loader(args, **kwargs)
 
         # Define network
@@ -201,7 +207,11 @@ class Trainer(object):
             optimizer = torch.optim.SGD(fpn.parameters(), lr=args.lr, momentum=0, weight_decay=args.weight_decay)
 
         # Define Criterion
-        self.criterion = nn.CrossEntropyLoss()
+        if args.dataset == 'CamVid':
+            self.criterion = nn.CrossEntropyLoss()
+        elif args.dataset == 'Cityscapes':
+            weight = None
+            self.criterion = SegmentationLosses(weight=weight, cuda=args.cuda).build_loss(mode='ce')
 
         self.model = fpn
         self.optimizer = optimizer
@@ -244,7 +254,12 @@ class Trainer(object):
             adjust_learning_rate(self.optimizer, self.args.lr_decay_gamma)
             self.lr *= self.args.lr_decay_gamma
         for iteration, batch in enumerate(self.train_loader):
-            image, target = batch['X'], batch['l']
+            if self.args.dataset == 'CamVid':
+                image, target = batch['X'], batch['l']
+            elif self.args.dataset == 'Cityscapes':
+                image, target = batch['image'], batch['label']
+            else:
+                raise NotImplementedError
             if self.args.cuda:
                 image, target = image.cuda(), target.cuda()
             self.optimizer.zero_grad()
@@ -253,8 +268,9 @@ class Trainer(object):
 
             outputs = self.model(inputs)
             loss = self.criterion(outputs, labels.long())
-            # loss.backward(torch.ones_like(loss))
-            loss.backward()
+            loss_val = loss.item()
+            loss.backward(torch.ones_like(loss))
+            # loss.backward()
             self.optimizer.step()
             self.train_loss += loss.item()
             # tbar.set_description('\rTrain loss:%.3f' % (train_loss / (iteration + 1)))
@@ -281,48 +297,53 @@ class Trainer(object):
     def validation(self, epoch):
         self.model.eval()
         self.evaluator.reset()
-        # tbar = tqdm(self.val_loader, desc='\r')
+        tbar = tqdm(self.val_loader, desc='\r')
         test_loss = 0.0
         for iter, batch in enumerate(self.val_loader):
-            image, target = batch['X'], batch['l']
+            if self.args.dataset == 'CamVid':
+                image, target = batch['X'], batch['l']
+            elif self.args.dataset == 'Cityscapes':
+                image, target = batch['image'], batch['label']
+            else:
+                raise NotImplementedError
             if self.args.cuda:
                 image, target = image.cuda(), target.cuda()
             with torch.no_grad():
                 output = self.model(image)
             loss = self.criterion(output, target)
             test_loss += loss.item()
-            # tbar.set_description('Test loss: %.3f ' % (test_loss / (iter + 1)))
+            tbar.set_description('Test loss: %.3f ' % (test_loss / (iter + 1)))
             pred = output.data.cpu().numpy()
             target = target.cpu().numpy()
             pred = np.argmax(pred, axis=1)
             # Add batch sample into evaluator
             self.evaluator.add_batch(target, pred)
 
-            # Fast test during the training
-            Acc = self.evaluator.Pixel_Accuracy()
-            Acc_class = self.evaluator.Pixel_Accuracy_Class()
-            mIoU = self.evaluator.Mean_Intersection_over_Union()
-            FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union()
-            self.witer.add_scalar('val/total_loss_epoch', test_loss, epoch)
-            self.witer.add_scalar('val/mIoU', mIoU, epoch)
-            self.witer.add_scalar('val/Acc', Acc, epoch)
-            self.witer.add_scalar('val/Acc_class', Acc_class, epoch)
-            self.witer.add_scalar('val/FWIoU', FWIoU, epoch)
-            print('Validation:')
-            print('[Epoch: %d, numImages: %5d]' % (epoch, iter * self.args.batch_size + image.shape[0]))
-            print("Acc:{:.5f}, Acc_class:{:.5f}, mIoU:{:.5f}, fwIoU:{:.5f}".format(Acc, Acc_class, mIoU, FWIoU))
-            print('Loss: %.3f' % test_loss)
+        # Fast test during the training
+        Acc = self.evaluator.Pixel_Accuracy()
+        Acc_class = self.evaluator.Pixel_Accuracy_Class()
+        mIoU = self.evaluator.Mean_Intersection_over_Union()
+        FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union()
+        self.witer.add_scalar('val/total_loss_epoch', test_loss, epoch)
+        self.witer.add_scalar('val/mIoU', mIoU, epoch)
+        self.witer.add_scalar('val/Acc', Acc, epoch)
+        self.witer.add_scalar('val/Acc_class', Acc_class, epoch)
+        self.witer.add_scalar('val/FWIoU', FWIoU, epoch)
+        print('Validation:')
+        print('[Epoch: %d, numImages: %5d]' % (epoch, iter * self.args.batch_size + image.shape[0]))
+        print("Acc:{:.5f}, Acc_class:{:.5f}, mIoU:{:.5f}, fwIoU:{:.5f}".format(Acc, Acc_class, mIoU, FWIoU))
+        print('Loss: %.3f' % test_loss)
 
-            new_pred = mIoU
-            if new_pred > self.best_pred:
-                is_best = True
-                self.best_pred = new_pred
-                self.saver.save_checkpoint({
-                    'epoch': epoch + 1,
-                    'state_dict': self.model.state_dict(),
-                    'optimizer': self.optimizer.state_dict(),
-                    'best_pred': self.best_pred,
-                }, is_best)
+        new_pred = mIoU
+        if new_pred > self.best_pred:
+            is_best = True
+            self.best_pred = new_pred
+            self.saver.save_checkpoint({
+                'epoch': epoch + 1,
+                'state_dict': self.model.state_dict(),
+                'optimizer': self.optimizer.state_dict(),
+                'best_pred': self.best_pred,
+            }, is_best)
 
 
 def main():

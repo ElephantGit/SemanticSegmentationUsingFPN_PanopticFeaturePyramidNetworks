@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+import time
 
 def decode_seg_map_sequence(label_masks, dataset='pascal'):
     rgb_masks = []
@@ -27,7 +28,7 @@ def decode_segmap(label_mask, dataset, plot=False):
     elif dataset == 'cityscapes':
         n_classes = 19
         label_colours = get_cityscapes_labels()
-    elif dataset == 'camvid':
+    elif dataset == 'CamVid':
         n_classes = 32
         label_colours = get_camvid_labels()
     else:
@@ -39,7 +40,7 @@ def decode_segmap(label_mask, dataset, plot=False):
     for ll in range(0, n_classes):
         r[label_mask == ll] = label_colours[ll, 0]
         g[label_mask == ll] = label_colours[ll, 1]
-        b[label_mask == ll] = label_colours[ll, 2]
+        b[label_mask == ll] = label_colours[ll, 2] 
     rgb = np.zeros((label_mask.shape[0], label_mask.shape[1], 3))
     rgb[:, :, 0] = r / 255.0
     rgb[:, :, 1] = g / 255.0
@@ -47,6 +48,8 @@ def decode_segmap(label_mask, dataset, plot=False):
     if plot:
         plt.imshow(rgb)
         plt.show()
+        # time.sleep(1)
+        return rgb
     else:
         return rgb
 

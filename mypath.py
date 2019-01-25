@@ -7,7 +7,7 @@ class Path(object):
         elif dataset == 'sbd':
             # folder that contains dataset/.
             return '/path/to/datasets/benchmark_RELEASE/'
-        elif dataset == 'Cityscapes':
+        elif dataset == 'cityscapes':
             # foler that contains leftImg8bit/
             return 'D:\\Disk\\MidTerm\\Experiment\\Code\\Semantic\\FPN\\FPN\\data\\Cityscapes'
         elif dataset == 'coco':
@@ -16,4 +16,4 @@ class Path(object):
             return 'D:\\Disk\\MidTerm\\Experiment\\Code\\Semantic\\FPN\\FPN\\data\\CamVid'
         else:
             print('Dataset {} not available.'.format(dataset))
-            raise NotImplementedError
+            raise NotImplementedError("undefined dataset {}.".format(dataset))

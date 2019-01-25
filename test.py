@@ -110,6 +110,11 @@ def parse_args():
                         help='checkname',
                         default=None, type=str)
 
+    parser.add_argument('--base-size', type=int, default=512,
+                        help='base image size')
+    parser.add_argument('--crop-size', type=int, default=512,
+                        help='crop image size')
+
     args = parser.parse_args()
     return args
 
@@ -152,26 +157,30 @@ def main():
     test_label = []
     if args.dataset == "CamVid":
         root_dir = "D:\\disk\\midterm\\experiment\\code\\semantic\\fpn\\fpn\\data\\CamVid"
-        csv_file = os.path.join(root_dir, "val.csv")
-        csv_data = pd.read_csv(csv_file)
-        for i in range(len(csv_data)):
-            test_imgs.append(csv_data.iloc[i, 0])
-            test_label.append(csv_data.iloc[i, 1])
+        test_file = os.path.join(root_dir, "val.csv")
+        #csv_data = pd.read_csv(csv_file)
+        #for i in range(len(csv_data)):
+        #    test_imgs.append(csv_data.iloc[i, 0])
+        #    test_label.append(csv_data.iloc[i, 1])
+        test_data = CamVidDataset(csv_file=test_file, phase='val')
+        test_loader = torch.utils.data.DataLoader(test_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
 
     elif args.dataset == "Cityscapes":
-        root_dir = "D:\\disk\\midterm\\experiment\\code\\semantic\\fpn\\fpn\\data\\Cityscapes"
-        test_dir = os.path.join(root_dir, "test")
-        for scene in os.listdir(test_dir):
-            dir = os.path.join(test_dir, scene)
-            for img in os.listdir(dir):
-                img_name = os.path.join(dir, img)
-                test_imgs.append(img_name)
-        test_label_dir = os.paht.join(root_dir, "gtFine", "test")
-        for scene in os.listdir(test_label_dir):
-            dir = os.path.join(test_label_dir, scene)
-            for label in os.listdir(dir):
-                label_name = os.path.join(dir, label)
-                test_label.append(label_name)
+        #root_dir = "D:\\disk\\midterm\\experiment\\code\\semantic\\fpn\\fpn\\data\\Cityscapes"
+        #test_dir = os.path.join(root_dir, "test")
+        #for scene in os.listdir(test_dir):
+        #    dir = os.path.join(test_dir, scene)
+        #    for img in os.listdir(dir):
+        #        img_name = os.path.join(dir, img)
+        #        test_imgs.append(img_name)
+        #test_label_dir = os.paht.join(root_dir, "gtFine", "test")
+        #for scene in os.listdir(test_label_dir):
+        #    dir = os.path.join(test_label_dir, scene)
+        #    for label in os.listdir(dir):
+        #        label_name = os.path.join(dir, label)
+        #        test_label.append(label_name)
+        kwargs = {'num_workers': args.num_workers, 'pin_memory': True}
+        _, _, test_loader = make_data_loader(args, **kwargs)
     else:
         raise RuntimeError("dataset {} not found.".format(args.dataset))
 
@@ -182,29 +191,23 @@ def main():
     Acc_class = []
     mIoU = []
     FWIoU = []
-    for i in range(len(test_imgs)):
-        img_name = test_imgs[i]
-        label_name = test_label[i]
+    results = []
+    for iter, batch in enumerate(test_loader):
+        if args.dataset == 'CamVid':
+            image, target = batch['X'], batch['l']
+        elif args.dataset == 'Cityscapes':
+            image, target = batch['image'], batch['label']
+        else:
+            raise NotImplementedError
 
-        # read rgb image
-        img = scipy.misc.imread(img_name, mode='RGB')
-        img = img[:, :, ::-1] # switch to BGR
-        img = np.transpose(img, (2, 0, 1)) / 255.
-        img[0] -= means[0]
-        img[1] -= means[1]
-        img[2] -= means[2]
-        img = torch.from_numpy(img.copy()).float()
-        
-        # read label image
-        label = np.load(label_name)
-        label = torch.from_numpy(label.copy()).long()
-        img, label = img.cuda(), label.cuda()
+        if args.cuda:
+            image, target, model = image.cuda(), target.cuda(), model.cuda()
         with torch.no_grad():
-            output = model(img)
+            output = model(image)
         pred = output.data.cpu().numpy()
         pred = np.argmax(pred, axis=1)
-        label = label.cpu().numpy()
-        evaluator.add_batch(label, pred)
+        target = target.cpu().numpy()
+        evaluator.add_batch(target, pred)
 
         # calculate
         Acc.append(evaluator.Pixel_Accuracy())
@@ -213,7 +216,8 @@ def main():
         FWIoU.append(evaluator.Frequency_Weighted_Intersection_over_Union())
 
         # show result
-        pred_rgb = decode_segmap(pred, args.dataset, plot=True)
+        pred_rgb = decode_seg_map_sequence(pred, args.dataset)
+        results.append(pred_rgb)
 
     Acc_mean = np.array(Acc).mean()
     Acc_class_mean = np.array(Acc_class).mean()
@@ -221,7 +225,7 @@ def main():
     FWIoU_mean = np.array(FWIoU).mean()
 
     print('Mean evaluate result on dataset {}'.format(args.dataset))
-    print('Acc_mean:{:.3f}\tAcc_class_mean:{:.3f}\tmIoU_mean:{:.3f}\tFWIoU_mean:{:.3f}')
+    print('Acc_mean:{:.3f}\tAcc_class_mean:{:.3f}\tmIoU_mean:{:.3f}\tFWIoU_mean:{:.3f}'.format(Acc_mean, Acc_class_mean, mIoU_mean, FWIoU_mean))
 
 if __name__ == "__main__":
     main()
