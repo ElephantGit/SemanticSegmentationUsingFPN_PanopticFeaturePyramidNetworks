@@ -14,27 +14,26 @@ download [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/) da
 
 - for CamVid dataset, make directory "data\CamVid" and put "701_StillsRaw_full", "LabeledApproved_full" in "CamVid".
 
-- for Cityscapes dataset, make directory "data\Cityscapes" and put "gtFine", "test", "train", "val" in "data\Cityscapes"
+- for Cityscapes dataset, make directory "Cityscapes" and put "gtFine" in "Cityscapes/gtFine_trainvaltest" folder, put "test", "train", "val" in "Cityscapes/leftImg8bit" foloder
 
 run:
 for Cityscapes dataset;
 ```
 python data/CityScapes_utils.py    
 ```
-for CamVid dataset.
-```
-python data/CamVid_utils.py     
-```
 
 ### Train the network
 
-train with CamVid(default) dataset
+train with CamVid dataset:
+
+change to you own CamVid dataset path in mypath.py, then run:
 
 ```
-python trainval.py
+python trainval.py --dataset=CamVid
 ```
 
-train with Cityscapes dataset
+train with Cityscapes(default) dataset:
+change to your own CityScapes dataset path in mypath.py, then run:
 
 ```
 python trainval.py --dataset=Cityscapes
