@@ -214,21 +214,6 @@ def main():
         target = target.cpu().numpy()
         evaluator.add_batch(target, pred)
 
-        # evaluate
-    #    Acc.append(evaluator.Pixel_Accuracy())
-    #    Acc_class.append(evaluator.Pixel_Accuracy_Class())
-    #    mIoU.append(evaluator.Mean_Intersection_over_Union())
-    #    FWIoU.append(evaluator.Frequency_Weighted_Intersection_over_Union())
-
-        ## show result
-        #pred_rgb = decode_seg_map_sequence(pred, args.dataset, args.plot)
-        #results.append(pred_rgb)
-
-    #Acc_mean = np.array(Acc).mean()
-    #Acc_class_mean = np.array(Acc_class).mean()
-    #mIoU_mean = np.array(mIoU).mean()
-    #FWIoU_mean = np.array(FWIoU).mean()
-
     Acc = evaluator.Pixel_Accuracy()
     Acc_class = evaluator.Pixel_Accuracy_Class()
     mIoU = evaluator.Mean_Intersection_over_Union()
