@@ -53,7 +53,7 @@ def parse_args():
 					    default=2000, type=int)
     parser.add_argument('--save_dir', dest='save_dir',
 					    help='directory to save models',
-					    default="D:\\disk\\midterm\\experiment\\code\\semantic\\fpn\\fpn\\run",
+					    default="D:\\disk\\midterm\\experiment\\code\\semantic\\fpn-test\\fpn-test\\run",
 					    nargs=argparse.REMAINDER)
     parser.add_argument('--num_workers', dest='num_workers',
 					    help='number of worker to load data',

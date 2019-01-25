@@ -115,6 +115,11 @@ def parse_args():
     parser.add_argument('--crop-size', type=int, default=512,
                         help='crop image size')
 
+    # test confit
+    parser.add_argument('--plot', dest='plot',
+                        help='wether plot test result image',
+                        default=False, type=bool)
+
     args = parser.parse_args()
     return args
 
@@ -209,23 +214,28 @@ def main():
         target = target.cpu().numpy()
         evaluator.add_batch(target, pred)
 
-        # calculate
-        Acc.append(evaluator.Pixel_Accuracy())
-        Acc_class.append(evaluator.Pixel_Accuracy_Class())
-        mIoU.append(evaluator.Mean_Intersection_over_Union())
-        FWIoU.append(evaluator.Frequency_Weighted_Intersection_over_Union())
+        # evaluate
+    #    Acc.append(evaluator.Pixel_Accuracy())
+    #    Acc_class.append(evaluator.Pixel_Accuracy_Class())
+    #    mIoU.append(evaluator.Mean_Intersection_over_Union())
+    #    FWIoU.append(evaluator.Frequency_Weighted_Intersection_over_Union())
 
-        # show result
-        pred_rgb = decode_seg_map_sequence(pred, args.dataset)
-        results.append(pred_rgb)
+    #    # show result
+    #    pred_rgb = decode_seg_map_sequence(pred, args.dataset, args.plot)
+    #    results.append(pred_rgb)
 
-    Acc_mean = np.array(Acc).mean()
-    Acc_class_mean = np.array(Acc_class).mean()
-    mIoU_mean = np.array(mIoU).mean()
-    FWIoU_mean = np.array(FWIoU).mean()
+    #Acc_mean = np.array(Acc).mean()
+    #Acc_class_mean = np.array(Acc_class).mean()
+    #mIoU_mean = np.array(mIoU).mean()
+    #FWIoU_mean = np.array(FWIoU).mean()
+
+    Acc = evaluator.Pixel_Accuracy()
+    Acc_class = evaluator.Pixel_Accuracy_Class()
+    mIoU = evaluator.Mean_Intersection_over_Union()
+    FWIoU = evaluator.Frequency_Weighted_Intersection_over_Union()
 
     print('Mean evaluate result on dataset {}'.format(args.dataset))
-    print('Acc_mean:{:.3f}\tAcc_class_mean:{:.3f}\tmIoU_mean:{:.3f}\tFWIoU_mean:{:.3f}'.format(Acc_mean, Acc_class_mean, mIoU_mean, FWIoU_mean))
+    print('Acc:{:.3f}\tAcc_class:{:.3f}\nmIoU:{:.3f}\tFWIoU:{:.3f}'.format(Acc, Acc_class, mIoU, FWIoU))
 
 if __name__ == "__main__":
     main()

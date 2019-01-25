@@ -26,14 +26,14 @@ train with CamVid dataset:
 change to your own CamVid dataset path in mypath.py, then run:
 
 ```
-python trainval.py --dataset=CamVid
+python trainval.py --dataset CamVid
 ```
 
 train with Cityscapes(default) dataset:
 change to your own CityScapes dataset path in mypath.py, then run:
 
 ```
-python trainval.py --dataset=Cityscapes
+python trainval.py --dataset Cityscapes
 ```
 
 ## Test
