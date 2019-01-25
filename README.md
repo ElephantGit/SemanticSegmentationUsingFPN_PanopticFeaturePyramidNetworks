@@ -26,18 +26,29 @@ train with CamVid dataset:
 change to your own CamVid dataset path in mypath.py, then run:
 
 ```
-python trainval.py --dataset CamVid
+python train_val.py --dataset CamVid
 ```
 
 train with Cityscapes(default) dataset:
 change to your own CityScapes dataset path in mypath.py, then run:
 
 ```
-python trainval.py --dataset Cityscapes
+python train_val.py --dataset Cityscapes
 ```
 
 ## Test
-
+Test with CamVid dataset(val), run:
+```
+python test --dataset CamVid --save_dir /path/to/run
+```
+Test with Cityscapes dataset(val), run:
+```
+python test.py --dataset Cityscapes --save_dir /path/to/run
+```
+If you want to plot the color semantic segmentation prediction of the test input color image, please set --plot=True, for example:
+```
+python test.py --dataset Cityscapes --plot True
+```
 
 ## Acknowledgment
 [FCN-pytorch](https://github.com/pochih/FCN-pytorch)
