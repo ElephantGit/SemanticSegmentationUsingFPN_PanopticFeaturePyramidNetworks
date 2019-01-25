@@ -14,10 +14,7 @@ download [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/) da
 
 - for CamVid dataset, make directory "data\CamVid" and put "701_StillsRaw_full", "LabeledApproved_full" in "CamVid".
 
-- for Cityscapes dataset, make directory "Cityscapes" and put "gtFine" in "Cityscapes/gtFine_trainvaltest" folder, put "test", "train", "val" in "Cityscapes/leftImg8bit" foloder
-
-run:
-for Cityscapes dataset;
+- for Cityscapes dataset, make directory "Cityscapes" and put "gtFine" in "Cityscapes/gtFine_trainvaltest" folder, put "test", "train", "val" in "Cityscapes/leftImg8bit" foloder, then run:
 ```
 python data/CityScapes_utils.py    
 ```
