@@ -220,9 +220,9 @@ def main():
     #    mIoU.append(evaluator.Mean_Intersection_over_Union())
     #    FWIoU.append(evaluator.Frequency_Weighted_Intersection_over_Union())
 
-    #    # show result
-    #    pred_rgb = decode_seg_map_sequence(pred, args.dataset, args.plot)
-    #    results.append(pred_rgb)
+        # show result
+        pred_rgb = decode_seg_map_sequence(pred, args.dataset, args.plot)
+        results.append(pred_rgb)
 
     #Acc_mean = np.array(Acc).mean()
     #Acc_class_mean = np.array(Acc_class).mean()
@@ -233,6 +233,10 @@ def main():
     Acc_class = evaluator.Pixel_Accuracy_Class()
     mIoU = evaluator.Mean_Intersection_over_Union()
     FWIoU = evaluator.Frequency_Weighted_Intersection_over_Union()
+
+    # show result
+    pred_rgb = decode_seg_map_sequence(pred, args.dataset, args.plot)
+    results.append(pred_rgb)
 
     print('Mean evaluate result on dataset {}'.format(args.dataset))
     print('Acc:{:.3f}\tAcc_class:{:.3f}\nmIoU:{:.3f}\tFWIoU:{:.3f}'.format(Acc, Acc_class, mIoU, FWIoU))
