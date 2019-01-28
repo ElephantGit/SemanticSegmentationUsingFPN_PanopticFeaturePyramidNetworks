@@ -10,7 +10,7 @@ This repository is a semantic segmentation part implement of [Kaiming He, Panopt
   - [ ] Train on NYUD v2 Dataset
 
 ## results
-Not as good results as the paper, I am tring to improve it.
+Not as good results as the result in the paper, I am tring to improve it.
 
 | Dataset | mIoU | Pixel Acc | Backbone | Trained model
 |-------|-------|-------|-------|-------|
