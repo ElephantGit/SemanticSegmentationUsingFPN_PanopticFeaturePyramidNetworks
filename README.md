@@ -12,9 +12,9 @@ This repository is a semantic segmentation part implement of [Kaiming He, Panopt
 ## results
 Not a good results as the paper, I am tring to improve it.
 
-| Dataset | mIoU | Pixel Acc | Backbone |
-|-------|-------|-------|-------|
-| CamVid | 0.570 | 0.920 | ResNet101
+| Dataset | mIoU | Pixel Acc | Backbone | Trained model
+|-------|-------|-------|-------|-------|
+| CamVid | 0.570 | 0.920 | ResNet101 | [CamVid](https://drive.google.com/file/d/1l7y6uKXhogECZd3Pw4BMl3R5TUvAA4Vw/view?usp=sharing)
 
 ## Training
 
