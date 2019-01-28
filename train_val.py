@@ -235,13 +235,14 @@ class Trainer(object):
             if not os.path.isfile(load_name):
                 raise RuntimeError("=> no checkpoint found at '{}'".format(load_name))
             checkpoint = torch.load(load_name)
-            args.checkepoch = checkpoint['epoch']
+            args.start_epoch = checkpoint['epoch']
             if args.cuda:
                 self.model.load_state_dict(checkpoint['state_dict'])
             else:
                 self.model.load_state_dict(checkpoint['state_dict'])
             self.optimizer.load_state_dict(checkpoint['optimizer'])
             self.best_pred = checkpoint['best_pred']
+            self.lr = checkpoint['optimizer']['param_groups'][0]['lr']
             print("=> loaded checkpoint '{}'(epoch {})".format(load_name, checkpoint['epoch']))
 
 
