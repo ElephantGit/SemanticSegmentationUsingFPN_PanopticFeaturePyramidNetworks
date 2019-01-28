@@ -9,7 +9,9 @@ This repository is a semantic segmentation part implement of [Kaiming He, Panopt
   - [ ] Train on COCO Dataset
   - [ ] Train on NYUD v2 Dataset
 
-## Result
+## results
+Not a good results as the paper, I am tring to improve it.
+
 | Dataset | mIoU | Pixel Acc | Backbone |
 |-------|-------|-------|-------|
 | CamVid | 0.570 | 0.920 | ResNet101
