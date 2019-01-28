@@ -7,6 +7,12 @@ This repository is a semantic segmentation part implement of [Kaiming He, Panopt
   - [x] Train on CamVid Dataset
   - [ ] Train on Cityscapes Dataset
   - [ ] Train on COCO Dataset
+  - [ ] Train on NYUD v2 Dataset
+
+## Result
+| Dataset | mIoU | Pixel Acc |
+|-------|-------|-------|
+| CamVid | 0.570 | 0.920 |
 
 ## Training
 
