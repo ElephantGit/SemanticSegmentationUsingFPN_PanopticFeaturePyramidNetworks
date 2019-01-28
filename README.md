@@ -6,8 +6,8 @@ This repository is a semantic segmentation part implement of [Kaiming He, Panopt
 - [x] Semantic Segmentation Branch
   - [x] Train on CamVid Dataset
   - [ ] Train on Cityscapes Dataset
-  - [ ] Train on COCO Dataset
   - [ ] Train on NYUD v2 Dataset
+  - [ ] Train on PASCAL Context Dataset
 
 ## results
 Not as good as the result in the paper, I am tring to improve it.
