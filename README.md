@@ -62,7 +62,7 @@ python test.py --dataset Cityscapes --save_dir /path/to/experiment_x
 ```
 If you want to plot the color semantic segmentation prediction of the test input color image, please set --plot=True, for example:
 ```
-python test.py --dataset Cityscapes --save_dir /path/to/run --plot True
+python test.py --dataset Cityscapes --save_dir /path/to/experiment_x --plot True
 ```
 
 ## Acknowledgment
