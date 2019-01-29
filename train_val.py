@@ -50,7 +50,7 @@ def parse_args():
 					    default=1, type=int)
     parser.add_argument('--epochs', dest='epochs',
 					    help='number of iterations to train',
-					    default=2000, type=int)
+					    default=110, type=int)
     parser.add_argument('--save_dir', dest='save_dir',
 					    help='directory to save models',
 					    default="D:\\disk\\midterm\\experiment\\code\\semantic\\fpn-test\\fpn-test\\run",
@@ -66,7 +66,7 @@ def parse_args():
     # batch size
     parser.add_argument('--bs', dest='batch_size',
 					    help='batch_size',
-					    default=4, type=int)
+					    default=5, type=int)
 
     # config optimization
     parser.add_argument('--o', dest='optimizer',
@@ -74,7 +74,7 @@ def parse_args():
 					    default='sgd', type=str)
     parser.add_argument('--lr', dest='lr',
 					    help='starting learning rate',
-					    default=0.001, type=float)
+					    default=0.01, type=float)
     parser.add_argument('--weight_decay', dest='weight_decay',
                         help='weight_decay',
                         default=1e-5, type=float)
@@ -245,15 +245,19 @@ class Trainer(object):
             self.lr = checkpoint['optimizer']['param_groups'][0]['lr']
             print("=> loaded checkpoint '{}'(epoch {})".format(load_name, checkpoint['epoch']))
 
+        self.lr_stage = [68, 93]
+        self.lr_staget_ind = 0
+
 
     def training(self, epoch):
         self.train_loss = 0.0
         self.model.train()
         # tbar = tqdm(self.train_loader)
         num_img_tr = len(self.train_loader)
-        if epoch % (self.args.lr_decay_step + 1) == 0:
+        if self.lr_staget_ind > 1 and epoch % (self.lr_stage[self.lr_staget_ind]) == 0:
             adjust_learning_rate(self.optimizer, self.args.lr_decay_gamma)
             self.lr *= self.args.lr_decay_gamma
+            self.lr_staget_ind += 1
         for iteration, batch in enumerate(self.train_loader):
             if self.args.dataset == 'CamVid':
                 image, target = batch['X'], batch['l']
