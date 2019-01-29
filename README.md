@@ -54,15 +54,15 @@ python train_val.py --dataset Cityscapes
 ## Test
 Test with CamVid dataset(val), run:
 ```
-python test --dataset CamVid --save_dir /path/to/experiment_x
+python test --dataset CamVid --exp_dir /path/to/experiment_x
 ```
 Test with Cityscapes dataset(val), run:
 ```
-python test.py --dataset Cityscapes --save_dir /path/to/experiment_x
+python test.py --dataset Cityscapes --exp_dir /path/to/experiment_x
 ```
 If you want to plot the color semantic segmentation prediction of the test input color image, please set --plot=True, for example:
 ```
-python test.py --dataset Cityscapes --save_dir /path/to/experiment_x --plot True
+python test.py --dataset Cityscapes --exp_dir /path/to/experiment_x --plot True
 ```
 
 ## Acknowledgment
