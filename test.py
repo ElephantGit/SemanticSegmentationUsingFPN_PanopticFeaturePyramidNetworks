@@ -20,6 +20,7 @@ from data.CamVid_loader import CamVidDataset
 from data.utils import decode_segmap, decode_seg_map_sequence
 from mypath import Path
 from utils.metrics import Evaluator
+from data import make_data_loader
 
 from model.FPN import FPN
 from model.resnet import resnet
@@ -44,7 +45,7 @@ def parse_args():
     parser.add_argument('--save_dir', dest='save_dir',
 					    help='directory to save models',
 					    default="D:\\disk\\midterm\\experiment\\code\\semantic\\fpn\\fpn\\run",
-					    nargs=argparse.REMAINDER)
+					    type=str)
     parser.add_argument('--num_workers', dest='num_workers',
 					    help='number of worker to load data',
 					    default=0, type=int)
@@ -56,7 +57,7 @@ def parse_args():
     # batch size
     parser.add_argument('--bs', dest='batch_size',
 					    help='batch_size',
-					    default=3, type=int)
+					    default=5, type=int)
 
     # config optimization
     parser.add_argument('--o', dest='optimizer',
@@ -120,6 +121,9 @@ def parse_args():
     parser.add_argument('--plot', dest='plot',
                         help='wether plot test result image',
                         default=False, type=bool)
+    parser.add_argument('--exp_dir', dest='experiment_dir',
+                          help='dir of experiment',
+                          type=str)
 
     args = parser.parse_args()
     return args
@@ -142,15 +146,13 @@ def main():
     evaluator = Evaluator(num_class)
 
     # Trained model path and name
-    output_dir = os.path.join(args.save_dir, args.dataset, args.checkname)
-    runs = sorted(glob.glob(os.path.join(output_dir, 'experiment_*')))
-    run_id = int(runs[-1].split('_')[-1]) if runs else 0
-    experiment_dir = os.path.join(output_dir, 'experiment_{}'.format(str(run_id)))
+    experiment_dir = args.experiment_dir
     load_name = os.path.join(experiment_dir, 'checkpoint.pth.tar')
 
     # Load trained model
     if not os.path.isfile(load_name):
         raise RuntimeError("=> no checkpoint found at '{}'".format(load_name))
+    print('====>loading trained model from ' + load_name)
     checkpoint = torch.load(load_name)
     checkepoch = checkpoint['epoch']
     if args.cuda:
@@ -169,7 +171,8 @@ def main():
 
     elif args.dataset == "Cityscapes":
         kwargs = {'num_workers': args.num_workers, 'pin_memory': True}
-        _, _, test_loader = make_data_loader(args, **kwargs)
+        #_, test_loader, _, _ = make_data_loader(args, **kwargs)
+        _, val_loader, test_loader, _ = make_data_loader(args, **kwargs)
     else:
         raise RuntimeError("dataset {} not found.".format(args.dataset))
 
@@ -179,7 +182,7 @@ def main():
     mIoU = []
     FWIoU = []
     results = []
-    for iter, batch in enumerate(test_loader):
+    for iter, batch in enumerate(val_loader):
         if args.dataset == 'CamVid':
             image, target = batch['X'], batch['l']
         elif args.dataset == 'Cityscapes':
