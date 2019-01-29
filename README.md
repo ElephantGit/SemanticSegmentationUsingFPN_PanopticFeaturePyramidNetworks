@@ -12,9 +12,10 @@ This repository is a semantic segmentation part implement of [Kaiming He, Panopt
 ## results
 Not as good as the result in the paper, I am tring to improve it.
 
-| Dataset | mIoU | Pixel Acc | Backbone | Trained model
-|-------|-------|-------|-------|-------|
-| CamVid | 0.570 | 0.920 | ResNet101 | [CamVid](https://drive.google.com/file/d/1l7y6uKXhogECZd3Pw4BMl3R5TUvAA4Vw/view?usp=sharing)
+| Dataset | mIoU | Pixel Acc | FWIoU | Backbone | Trained model
+|-------|-------|-------|-------|-------|-------|
+| CamVid | 0.570 | 0.920 | - | ResNet101 | [CamVid](https://drive.google.com/file/d/1l7y6uKXhogECZd3Pw4BMl3R5TUvAA4Vw/view?usp=sharing)|
+| Cityscapes | 0.605 | 0.928 | 0.872 | ResNet101 | [CityScapes]()|
 
 ## Training
 
@@ -53,11 +54,11 @@ python train_val.py --dataset Cityscapes
 ## Test
 Test with CamVid dataset(val), run:
 ```
-python test --dataset CamVid --save_dir /path/to/run
+python test --dataset CamVid --save_dir /path/to/experiment_x
 ```
 Test with Cityscapes dataset(val), run:
 ```
-python test.py --dataset Cityscapes --save_dir /path/to/run
+python test.py --dataset Cityscapes --save_dir /path/to/experiment_x
 ```
 If you want to plot the color semantic segmentation prediction of the test input color image, please set --plot=True, for example:
 ```
