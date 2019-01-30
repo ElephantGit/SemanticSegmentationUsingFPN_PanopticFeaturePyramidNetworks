@@ -170,7 +170,7 @@ class Trainer(object):
 
         # Define Tensorboard Summary
         self.summary = TensorboardSummary(self.saver.experiment_dir)
-        self.witer = self.summary.create_summary()
+        self.writer = self.summary.create_summary()
 
         # Define Dataloader
         if args.dataset == 'CamVid':
@@ -283,13 +283,13 @@ class Trainer(object):
             if iteration % 10 == 0:
                 print("Epoch[{}]({}/{}):Loss:{:.4f}, learning rate={}".format(epoch, iteration, len(self.train_loader), loss.data, self.lr))
 
-            self.witer.add_scalar('train/total_loss_iter', loss.item(), iteration + num_img_tr * epoch)
+            self.writer.add_scalar('train/total_loss_iter', loss.item(), iteration + num_img_tr * epoch)
 
             #if iteration % (num_img_tr // 10) == 0:
             #    global_step = iteration + num_img_tr * epoch
             #    self.summary.visualize_image(self.witer, self.args.dataset, image, target, outputs, global_step)
 
-        self.witer.add_scalar('train/total_loss_epoch', train_loss, epoch)
+        self.writer.add_scalar('train/total_loss_epoch', train_loss, epoch)
         print('[Epoch: %d, numImages: %5d]' % (epoch, iteration * self.args.batch_size + image.data.shape[0]))
         print('Loss: %.3f' % train_loss)
 
