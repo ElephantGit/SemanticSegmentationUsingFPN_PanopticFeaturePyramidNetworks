@@ -1,6 +1,7 @@
 import torch
 import random
 import numpy as np
+import matplotlib.pyplot as plt
 
 from PIL import Image, ImageOps, ImageFilter
 
@@ -93,6 +94,7 @@ class RandomScaleCrop(object):
 
     def __call__(self, sample):
         img = sample['image']
+        # plt.imshow(img)
         mask = sample['label']
         # random scale (short edge)
         short_size = random.randint(int(self.base_size * 0.5), int(self.base_size * 2.0))
@@ -104,6 +106,7 @@ class RandomScaleCrop(object):
             oh = short_size
             ow = int(1.0 * w * oh / h)
         img = img.resize((ow, oh), Image.BILINEAR)
+        # plt.imshow(img)
         mask = mask.resize((ow, oh), Image.NEAREST)
         # pad crop
         if short_size < self.crop_size:
@@ -113,10 +116,10 @@ class RandomScaleCrop(object):
             mask = ImageOps.expand(mask, border=(0, 0, padw, padh), fill=self.fill)
         # random crop crop_size
         w, h = img.size
-        x1 = random.randint(0, w - self.crop_size)
+        x1 = random.randint(0, w - self.crop_size * 2)
         y1 = random.randint(0, h - self.crop_size)
-        img = img.crop((x1, y1, x1 + self.crop_size, y1 + self.crop_size))
-        mask = mask.crop((x1, y1, x1 + self.crop_size, y1 + self.crop_size))
+        img = img.crop((x1, y1, x1 + self.crop_size, y1 + self.crop_size * 2))
+        mask = mask.crop((x1, y1, x1 + self.crop_size, y1 + self.crop_size * 2))
 
         return {'image': img,
                 'label': mask}
@@ -150,7 +153,7 @@ class FixScaleCrop(object):
 
 class FixedResize(object):
     def __init__(self, size):
-        self.size = (size, size)  # size: (h, w)
+        self.size = (size * 2, size)  # size: (h, w)
 
     def __call__(self, sample):
         img = sample['image']
