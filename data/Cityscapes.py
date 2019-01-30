@@ -55,11 +55,14 @@ class CityscapesSegmentation(data.Dataset):
         sample = {'image': _img, 'label': _target}
 
         if self.split == 'train':
-            return self.transform_tr(sample)
+            train_set = self.transform_tr(sample)
+            return train_set
         elif self.split == 'val':
-            return self.transform_val(sample)
+            val_set = self.transform_val(sample)
+            return val_set
         elif self.split == 'test':
-            return self.transform_ts(sample)
+            test_set = self.transform_ts(sample)
+            return test_set
 
     def encode_segmap(self, mask):
         # Put all void classes to zero
@@ -80,9 +83,9 @@ class CityscapesSegmentation(data.Dataset):
 
     def transform_tr(self, sample):
         composed_transforms = transforms.Compose([
-            tr.RandomHorizontalFlip(),
+            # tr.RandomHorizontalFlip(),
             tr.RandomScaleCrop(base_size=self.args.base_size, crop_size=self.args.crop_size, fill=255),
-            tr.RandomGaussianBlur(),
+            # tr.RandomGaussianBlur(),
             tr.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
             tr.ToTensor()])
 
@@ -91,7 +94,8 @@ class CityscapesSegmentation(data.Dataset):
     def transform_val(self, sample):
 
         composed_transforms = transforms.Compose([
-            tr.FixScaleCrop(crop_size=self.args.crop_size),
+            tr.FixedResize(size=self.args.crop_size),
+            #tr.FixScaleCrop(crop_size=self.args.crop_size),
             tr.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
             tr.ToTensor()])
 
