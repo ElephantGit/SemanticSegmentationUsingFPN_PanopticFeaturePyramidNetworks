@@ -66,7 +66,7 @@ def parse_args():
     # batch size
     parser.add_argument('--bs', dest='batch_size',
 					    help='batch_size',
-					    default=5, type=int)
+					    default=4, type=int)
 
     # config optimization
     parser.add_argument('--o', dest='optimizer',
@@ -121,7 +121,7 @@ def parse_args():
                         help='checkname',
                         default=None, type=str)
 
-    parser.add_argument('--base-size', type=int, default=512,
+    parser.add_argument('--base-size', type=int, default=1024,
                         help='base image size')
     parser.add_argument('--crop-size', type=int, default=512,
                         help='crop image size')
@@ -250,7 +250,7 @@ class Trainer(object):
 
 
     def training(self, epoch):
-        self.train_loss = 0.0
+        train_loss = 0.0
         self.model.train()
         # tbar = tqdm(self.train_loader)
         num_img_tr = len(self.train_loader)
@@ -277,7 +277,7 @@ class Trainer(object):
             loss.backward(torch.ones_like(loss))
             # loss.backward()
             self.optimizer.step()
-            self.train_loss += loss.item()
+            train_loss += loss.item()
             # tbar.set_description('\rTrain loss:%.3f' % (train_loss / (iteration + 1)))
 
             if iteration % 10 == 0:
@@ -289,15 +289,20 @@ class Trainer(object):
             #    global_step = iteration + num_img_tr * epoch
             #    self.summary.visualize_image(self.witer, self.args.dataset, image, target, outputs, global_step)
 
-            if self.args.no_val:
-                # save checkpoint every epoch
-                is_best = False
-                self.saver.save_checkpoint({
-                    'epoch': epoch + 1,
-                    'state_dict': self.model.module.state_dict(),
-                    'optimizer': self.optimizer.state_dict(),
-                    'best_pred': self.best_pred,
-                    }, is_best)
+        self.witer.add_scalar('train/total_loss_epoch', train_loss, epoch)
+        print('[Epoch: %d, numImages: %5d]' % (epoch, iteration * self.args.batch_size + image.data.shape[0]))
+        print('Loss: %.3f' % train_loss)
+
+        if self.args.no_val:
+            # save checkpoint every epoch
+            is_best = False
+            self.saver.save_checkpoint({
+                'epoch': epoch + 1,
+                'state_dict': self.model.module.state_dict(),
+                'optimizer': self.optimizer.state_dict(),
+                'best_pred': self.best_pred,
+                }, is_best)
+
 
     def validation(self, epoch):
         self.model.eval()
@@ -329,11 +334,11 @@ class Trainer(object):
         Acc_class = self.evaluator.Pixel_Accuracy_Class()
         mIoU = self.evaluator.Mean_Intersection_over_Union()
         FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union()
-        self.witer.add_scalar('val/total_loss_epoch', test_loss, epoch)
-        self.witer.add_scalar('val/mIoU', mIoU, epoch)
-        self.witer.add_scalar('val/Acc', Acc, epoch)
-        self.witer.add_scalar('val/Acc_class', Acc_class, epoch)
-        self.witer.add_scalar('val/FWIoU', FWIoU, epoch)
+        self.writer.add_scalar('val/total_loss_epoch', test_loss, epoch)
+        self.writer.add_scalar('val/mIoU', mIoU, epoch)
+        self.writer.add_scalar('val/Acc', Acc, epoch)
+        self.writer.add_scalar('val/Acc_class', Acc_class, epoch)
+        self.writer.add_scalar('val/FWIoU', FWIoU, epoch)
         print('Validation:')
         print('[Epoch: %d, numImages: %5d]' % (epoch, iter * self.args.batch_size + image.shape[0]))
         print("Acc:{:.5f}, Acc_class:{:.5f}, mIoU:{:.5f}, fwIoU:{:.5f}".format(Acc, Acc_class, mIoU, FWIoU))
@@ -363,7 +368,6 @@ def main():
         trainer.training(epoch)
         if not trainer.args.no_val and epoch % args.eval_interval == (args.eval_interval - 1):
             trainer.validation(epoch)
-        print("=========>Epoch {} Complete:Avg.Loss:{:.4f}, learning rate={}".format(epoch, trainer.train_loss / len(trainer.train_loader), trainer.lr))
     trainer.writer.close()
 
 if __name__ == '__main__':
