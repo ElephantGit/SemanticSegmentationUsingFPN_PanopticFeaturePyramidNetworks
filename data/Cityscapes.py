@@ -59,7 +59,7 @@ class CityscapesSegmentation(data.Dataset):
             return train_set
         elif self.split == 'val':
             val_set = self.transform_val(sample)
-            return val_set
+            return val_set 
         elif self.split == 'test':
             test_set = self.transform_ts(sample)
             return test_set

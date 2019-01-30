@@ -3,10 +3,10 @@ import numpy as np
 import torch
 import time
 
-def decode_seg_map_sequence(label_masks, dataset='pascal'):
+def decode_seg_map_sequence(label_masks, dataset='pascal', plot=False):
     rgb_masks = []
     for label_mask in label_masks:
-        rgb_mask = decode_segmap(label_mask, dataset)
+        rgb_mask = decode_segmap(label_mask, dataset, plot)
         rgb_masks.append(rgb_mask)
     rgb_masks = torch.from_numpy(np.array(rgb_masks).transpose([0, 3, 1, 2]))
     return rgb_masks
@@ -25,7 +25,7 @@ def decode_segmap(label_mask, dataset, plot=False):
     if dataset == 'pascal' or dataset == 'coco':
         n_classes = 21
         label_colours = get_pascal_labels()
-    elif dataset == 'cityscapes':
+    elif dataset == 'Cityscapes':
         n_classes = 19
         label_colours = get_cityscapes_labels()
     elif dataset == 'CamVid':
