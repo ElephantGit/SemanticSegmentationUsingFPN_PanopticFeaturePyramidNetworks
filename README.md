@@ -4,6 +4,7 @@ This repository is a semantic segmentation part implement of [Kaiming He, Panopt
 
 ## To do
 - [x] Semantic Segmentation Branch
+  - [x] Multiple GPUs training
   - [x] Train on CamVid Dataset
   - [x] Train on Cityscapes Dataset
   - [ ] Train on NYUD v2 Dataset
