@@ -27,12 +27,12 @@ download pytorch 1.0.0 from [pytorch.org](https://pytorch.org)
 
 download [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/) dataset or [Cityscapes](https://www.cityscapes-dataset.com/) dataset
 
-- for CamVid dataset, make directory "data\CamVid" and put "701_StillsRaw_full", "LabeledApproved_full" in "CamVid".
+- for CamVid dataset, make directory "data\CamVid" and put "701_StillsRaw_full", "LabeledApproved_full" in "CamVid", then run:
+```
+python data/CamVid_utils.py    
+```
 
-- for Cityscapes dataset, make directory "Cityscapes" and put "gtFine" in "Cityscapes/gtFine_trainvaltest" folder, put "test", "train", "val" in "Cityscapes/leftImg8bit" foloder, then run:
-```
-python data/CityScapes_utils.py    
-```
+- for Cityscapes dataset, make directory "Cityscapes" and put "gtFine" in "Cityscapes/gtFine_trainvaltest" folder, put "test", "train", "val" in "Cityscapes/leftImg8bit" foloder,
 
 ### Train the network
 

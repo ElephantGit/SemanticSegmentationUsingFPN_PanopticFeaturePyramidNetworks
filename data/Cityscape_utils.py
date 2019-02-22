@@ -16,10 +16,10 @@ import os
 #############################
 root_dir  = "CityScapes/"
 
-label_dir = os.path.join(root_dir, "gtFine")
-train_dir = os.path.join(label_dir, "train")
-val_dir   = os.path.join(label_dir, "val")
-test_dir  = os.path.join(label_dir, "test")
+label_dir = os.path.join(root_dir, "gtFine_trainvaltest/gtFine")
+train_dir = os.path.join(label_dir, "leftImg8bit/train")
+val_dir   = os.path.join(label_dir, "leftImg8bit/val")
+test_dir  = os.path.join(label_dir, "leftImg8bit/test")
 
 # create dir for label index
 label_idx_dir = os.path.join(root_dir, "Labeled_idx")
@@ -37,13 +37,13 @@ test_file  = os.path.join(root_dir, "test.csv")
 color2index = {}
 
 Label = namedtuple('Label', [
-                   'name', 
-                   'id', 
-                   'trainId', 
-                   'category', 
-                   'categoryId', 
-                   'hasInstances', 
-                   'ignoreInEval', 
+                   'name',
+                   'id',
+                   'trainId',
+                   'category',
+                   'categoryId',
+                   'hasInstances',
+                   'ignoreInEval',
                    'color'])
 
 labels = [
@@ -88,7 +88,7 @@ labels = [
 
 def parse_label():
     # change label to class index
-    color2index[(0,0,0)] = 0  # add an void class 
+    color2index[(0,0,0)] = 0  # add an void class
     for obj in labels:
         if obj.ignoreInEval:
             continue
@@ -97,7 +97,7 @@ def parse_label():
         color = obj.color
         color2index[color] = idx
 
-    # parse train, val, test data    
+    # parse train, val, test data
     for label_dir, index_dir, csv_file in zip([train_dir, val_dir, test_dir], [train_idx_dir, val_idx_dir, test_idx_dir], [train_file, val_file, test_file]):
         f = open(csv_file, "w")
         f.write("img,label\n")
@@ -122,7 +122,7 @@ def parse_label():
                 img = os.path.join(city_dir, filename)
                 img = scipy.misc.imread(img, mode='RGB')
                 height, weight, _ = img.shape
-        
+
                 idx_mat = np.zeros((height, weight))
                 for h in range(height):
                     for w in range(weight):
@@ -148,7 +148,7 @@ def imshow(img, title=None):
 
     if title is not None:
         plt.title(title)
-    
+
     plt.show()
 
 
