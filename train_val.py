@@ -63,7 +63,7 @@ def parse_args():
                       help='whether use CUDA',
                       action='store_true')
     # multiple GPUs
-    parser.add_argument('--mGPUs', dest='nGPUs', type=bool,
+    parser.add_argument('--mGPUs', dest='mGPUs', type=bool,
 					    help='whether use multiple GPUs',
                         default=False,)
     parser.add_argument('--gpu_ids', dest='gpu_ids',
