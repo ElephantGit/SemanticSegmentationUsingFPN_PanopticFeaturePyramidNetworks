@@ -60,9 +60,15 @@ def parse_args():
 					    default=0, type=int)
     # cuda
     parser.add_argument('--cuda', dest='cuda',
+                      help='whether use CUDA',
+                      action='store_true')
+    # multiple GPUs
+    parser.add_argument('--mGPUs', dest='nGPUs',
 					    help='whether use multiple GPUs',
-                        default=True,
+                        default=False,
 					    action='store_true')
+    parser.add_argument('--gpu_ids', type=str, default='0',
+                        help='use which gpu to train, must be a comma-separated list of integers only (defalt=0)')
     # batch size
     parser.add_argument('--bs', dest='batch_size',
 					    help='batch_size',
@@ -219,6 +225,10 @@ class Trainer(object):
         # Define Evaluator
         self.evaluator = Evaluator(self.num_class)
 
+        # multiple mGPUs
+        if args.mGPUs:
+            self.model = torch.nn.DataParallel(self.model, device_ids=self.args.gpu_ids)
+
         # Using cuda
         if args.cuda:
             self.model = self.model.cuda()
@@ -360,6 +370,22 @@ def main():
     args = parse_args()
     if args.checkname is None:
         args.checkname = 'fpn-' + str(args.net)
+
+    if args.cuda and args.mGPUs:
+        try:
+            args.gpu_ids = [int(s) for s in args.gpu_ids.split('.')]
+        except ValueError:
+            raise ValueError('Argument --gpu_ids must be a comma-separated list of itegers only')
+
+    if args.batch_size is None:
+        args.batch_size = 4 * len(args.gpu_ids)
+
+    if args.lr is None:
+        lrs = {
+            'cityscapes': 0.01,
+        }
+        args.lr = lrs[args.dataset.lower()] / (4 * len(args.gpu_ids)) * args.batch_size
+
     print(args)
     trainer = Trainer(args)
     print('Starting Epoch:', trainer.args.start_epoch)

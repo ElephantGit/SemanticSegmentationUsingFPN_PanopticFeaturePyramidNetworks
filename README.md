@@ -71,3 +71,5 @@ python test.py --dataset Cityscapes --exp_dir /path/to/experiment_x --plot True
 [pytorch-deeplab-xception](https://github.com/jfzhang95/pytorch-deeplab-xception)
 
 [pytorch-fpn](https://github.com/kuangliu/pytorch-fpn)
+
+[fpn.pytorch](https://github.com/jwyang/fpn.pytorch)
