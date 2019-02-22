@@ -44,11 +44,21 @@ change to your own CamVid dataset path in mypath.py, then run:
 python train_val.py --dataset CamVid --save_dir /path/to/run
 ```
 
+for **multiple GPUs training**, change to your own CamVid dataset path in mypath.py, then run:
+```
+python train_val.py --dataset CamVid --save_dir /path/to/run --mGPUs True --gpu_ids 0,1,2
+```
+
 train with Cityscapes(default) dataset:
 change to your own CityScapes dataset path in mypath.py, then run:
 
 ```
 python train_val.py --dataset Cityscapes --save_dir /path/to/run
+```
+
+for **multiple GPUs training**, change to your own CityScapes dataset path in mypath.py, then run:
+```
+python train_val.py --dataset Cityscapes --save_dir /path/to/run --mGPUs True --gpu_ids 0,1,2
 ```
 
 ## Test
