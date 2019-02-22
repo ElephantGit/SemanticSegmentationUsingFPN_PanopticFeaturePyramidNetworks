@@ -53,7 +53,7 @@ def parse_args():
 					    default=110, type=int)
     parser.add_argument('--save_dir', dest='save_dir',
 					    help='directory to save models',
-					    default="D:\\disk\\midterm\\experiment\\code\\semantic\\fpn-test\\fpn-test\\run",
+					    default=None,
 					    nargs=argparse.REMAINDER)
     parser.add_argument('--num_workers', dest='num_workers',
 					    help='number of worker to load data',
@@ -368,6 +368,8 @@ class Trainer(object):
 
 def main():
     args = parse_args()
+    if args.save_dir is None:
+        args.save_dir = os.path.join(os.getcwd(), 'run')
     if args.checkname is None:
         args.checkname = 'fpn-' + str(args.net)
 
