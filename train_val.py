@@ -65,10 +65,10 @@ def parse_args():
     # multiple GPUs
     parser.add_argument('--mGPUs', dest='nGPUs', type=bool,
 					    help='whether use multiple GPUs',
-                        default=False,
-					    action='store_true')
-    parser.add_argument('--gpu_ids', type=str, default='0',
-                        help='use which gpu to train, must be a comma-separated list of integers only (defalt=0)')
+                        default=False,)
+    parser.add_argument('--gpu_ids', dest='gpu_ids',
+                        help='use which gpu to train, must be a comma-separated list of integers only (defalt=0)',
+                        default='0', type=str)
     # batch size
     parser.add_argument('--bs', dest='batch_size',
 					    help='batch_size',
