@@ -70,9 +70,9 @@ def parse_args():
                         help='use which gpu to train, must be a comma-separated list of integers only (defalt=0)',
                         default='0', type=str)
     # batch size
-    parser.add_argument('--bs', dest='batch_size',
+    parser.add_argument('--batch_size', dest='batch_size',
 					    help='batch_size',
-					    default=32, type=int)
+					    default=None, type=int)
 
     # config optimization
     parser.add_argument('--o', dest='optimizer',
