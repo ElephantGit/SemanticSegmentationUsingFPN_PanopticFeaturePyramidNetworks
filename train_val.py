@@ -60,8 +60,8 @@ def parse_args():
 					    default=0, type=int)
     # cuda
     parser.add_argument('--cuda', dest='cuda',
-                      help='whether use CUDA',
-                      action='store_true')
+                      help='whether use CUDA'
+                      default=True, type=bool)
     # multiple GPUs
     parser.add_argument('--mGPUs', dest='mGPUs', type=bool,
 					    help='whether use multiple GPUs',
@@ -72,7 +72,7 @@ def parse_args():
     # batch size
     parser.add_argument('--bs', dest='batch_size',
 					    help='batch_size',
-					    default=4, type=int)
+					    default=32, type=int)
 
     # config optimization
     parser.add_argument('--o', dest='optimizer',
@@ -373,7 +373,7 @@ def main():
 
     if args.cuda and args.mGPUs:
         try:
-            args.gpu_ids = [int(s) for s in args.gpu_ids.split('.')]
+            args.gpu_ids = [int(s) for s in args.gpu_ids.split(',')]
         except ValueError:
             raise ValueError('Argument --gpu_ids must be a comma-separated list of itegers only')
 
