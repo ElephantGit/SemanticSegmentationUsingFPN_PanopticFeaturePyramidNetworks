@@ -18,7 +18,7 @@ Not as good as the result in the paper, I am tring to improve it.
 
 | Dataset | mIoU | Pixel Acc | FWIoU | Backbone | Trained model
 |-------|-------|-------|-------|-------|-------|
-| CamVid | 0.570 | 0.920 | - | ResNet101 | [CamVid](https://drive.google.com/file/d/1l7y6uKXhogECZd3Pw4BMl3R5TUvAA4Vw/view?usp=sharing)|
+| CamVid | 0.570 | 0.920 | 0.861 | ResNet101 | [CamVid](https://drive.google.com/file/d/1l7y6uKXhogECZd3Pw4BMl3R5TUvAA4Vw/view?usp=sharing)|
 | Cityscapes | 0.605 | 0.928 | 0.872 | ResNet101 | [CityScapes](https://drive.google.com/open?id=1Dw1dyKStNo65IlQM_ORlanHLE-rmJ0ak)|
 
 ## Training
