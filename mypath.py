@@ -14,6 +14,8 @@ class Path(object):
             return '/path/to/datasets/coco/'
         elif dataset == 'Camvid':
             return 'D:\\Disk\\MidTerm\\Experiment\\Code\\Semantic\\FPN\\FPN\\data\\CamVid'
+        elif dataset == 'nyudv2':
+            return 'path\to\nyudv2\dataset'
         else:
             print('Dataset {} not available.'.format(dataset))
             raise NotImplementedError("undefined dataset {}.".format(dataset))

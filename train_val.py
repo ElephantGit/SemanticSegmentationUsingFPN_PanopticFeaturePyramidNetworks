@@ -198,6 +198,9 @@ class Trainer(object):
         elif args.dataset == 'Cityscapes':
             kwargs = {'num_workers': args.num_workers, 'pin_memory': True}
             self.train_loader, self.val_loader, self.test_loader, self.num_class = make_data_loader(args, **kwargs)
+        elif args.dataset == 'NYUDv2':
+        kwargs = {'num_workers': args.num_workers, 'pin_memory': True}
+        self.train_loader, self.val_loader, self.num_class = make_data_loader(args, **kwargs)
 
         # Define network
         if args.net == 'resnet101':
@@ -218,6 +221,9 @@ class Trainer(object):
         elif args.dataset == 'Cityscapes':
             weight = None
             self.criterion = SegmentationLosses(weight=weight, cuda=args.cuda).build_loss(mode='ce')
+        elif args.dataset == 'NYUDv2':
+            weight = None
+            self.criterion = SegmentationLosses(weight = weight, cuda=args.cuda).build_loss(mode='ce')
 
         self.model = fpn
         self.optimizer = optimizer
@@ -273,6 +279,8 @@ class Trainer(object):
                 image, target = batch['X'], batch['l']
             elif self.args.dataset == 'Cityscapes':
                 image, target = batch['image'], batch['label']
+            elif self.args.dataset == 'NYUDv2':
+                image, target = batch['image'], batch['label']
             else:
                 raise NotImplementedError
             if self.args.cuda:
@@ -323,6 +331,8 @@ class Trainer(object):
             if self.args.dataset == 'CamVid':
                 image, target = batch['X'], batch['l']
             elif self.args.dataset == 'Cityscapes':
+                image, target = batch['image'], batch['label']
+            elif self.args.dataset == 'NYUDv2':
                 image, target = batch['image'], batch['label']
             else:
                 raise NotImplementedError
